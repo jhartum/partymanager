@@ -3,6 +3,7 @@
    [clojure.java.io :as io]
    [clojure.tools.logging :as log]
    [compojure.core :refer [defroutes GET POST]]
+   [compojure.route :as route]
    [partymanager.api-handler :as api-handler]
    [partymanager.config :as config]
    [partymanager.message-handler :as message-handler]
@@ -53,7 +54,13 @@
     (webhook-handler req))
 
   (POST (str base-path "/web-app-api") req
-    (api-handler/handle-api-request req)))
+    (api-handler/handle-api-request req))
+    
+  ;; Serve static files from resources/public
+  (route/resources (str base-path "/") {:root "public"})
+  
+  ;; Handle unmatched routes
+  (route/not-found "Not Found"))
 
 ;; Middleware
 (def app
@@ -62,7 +69,8 @@
       (middleware/wrap-json-response)
       (wrap-defaults (-> site-defaults
                          (assoc-in [:security :anti-forgery] false)
-                         (assoc-in [:responses :content-types] true)))))
+                         (assoc-in [:responses :content-types] true)
+                         (assoc-in [:static :resources] false)))))
 
 ;; Entry point
 (defn -main []
