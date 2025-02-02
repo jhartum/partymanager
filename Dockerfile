@@ -23,9 +23,8 @@ RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 WORKDIR /app
 RUN mkdir -p /app/resources && chown -R appuser:appgroup /app
 
-# Копируем только собранный jar из предыдущего этапа
+# Копируем только собранный jar из предыдущего этапа (содержит все ресурсы)
 COPY --from=builder /app/target/partymanager-*-standalone.jar /app/partymanager.jar
-COPY --from=builder /app/resources/public /app/resources/public
 
 # Переключаемся на непривилегированного пользователя
 USER appuser
