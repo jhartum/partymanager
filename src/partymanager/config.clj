@@ -36,7 +36,7 @@
                                                              :text "Open App"
                                                              :web_app {:url (str domain-url "/partymanager/")}}}
                                  :content-type :json})]
-      (log/info "Menu button set:" (:body response) (str domain-url "/partymanager/")))
+      (log/info "Menu button set:" (:body response) (str domain-url "/")))
     (catch Exception e
       (log/error "Menu button setup error:" (.getMessage e)))))
 
