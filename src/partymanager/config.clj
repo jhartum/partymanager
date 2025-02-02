@@ -24,7 +24,7 @@
     (let [response (client/post (str "https://api.telegram.org/bot" telegram-token "/setWebhook")
                                 {:form-params {:url (str domain-url "/webhook")}
                                  :content-type :json})]
-      (log/info "Webhook set:" (:body response)))
+      (log/info "Webhook set:" (:body response) (str domain-url "/webhook")))
     (catch Exception e
       (log/error "Webhook setup error:" (.getMessage e)))))
 
