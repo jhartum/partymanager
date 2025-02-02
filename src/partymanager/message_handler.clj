@@ -10,18 +10,18 @@
   [chat-id text & [reply-markup]]
   (let [url (str "https://api.telegram.org/bot" telegram-token "/sendMessage")
         params (cond-> {:chat_id chat-id
-                       :text text
-                       :parse_mode "Markdown"}
-                reply-markup (assoc :reply_markup (json/generate-string reply-markup)))]
+                        :text text
+                        :parse_mode "Markdown"}
+                 reply-markup (assoc :reply_markup (json/generate-string reply-markup)))]
     (try
       (log/info "Sending message to Telegram API:"
                 "\nURL:" url
                 "\nParameters:" (json/encode params))
       (let [response (client/post url
-                                 {:form-params params
-                                  :content-type :json
-                                  :as :json
-                                  :throw-exceptions false})]
+                                  {:form-params params
+                                   :content-type :json
+                                   :as :json
+                                   :throw-exceptions false})]
         (when (not= 200 (:status response))
           (log/error "Telegram API returned error:"
                      "\nStatus:" (:status response)
@@ -41,6 +41,6 @@
      chat-id
      (str "🌟 Welcome!\nUse the button to manage groups:")
      {:inline_keyboard [[{:text "📲 Open App"
-                          :web_app {:url (str domain-url "/index.html")}}]]})
+                          :web_app {:url (str domain-url)}}]]})
     ;; Return a proper response map
     {:status 200 :body "OK"}))
