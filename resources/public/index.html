@@ -174,7 +174,7 @@
 
         async function updateGroups() {
             try {
-                const response = await fetch('/web-app-api', {
+                const response = await fetch('/partymanager/web-app-api', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -204,7 +204,7 @@
             }
 
             try {
-                const response = await fetch('/web-app-api', {
+                const response = await fetch('/partymanager/web-app-api', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -239,7 +239,7 @@
             }
 
             try {
-                const response = await fetch('/web-app-api', {
+                const response = await fetch('/partymanager/web-app-api', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -266,7 +266,7 @@
         async function setReady(groupId) {
             try {
                 console.log('Setting ready for group:', groupId);
-                const response = await fetch('/web-app-api', {
+                const response = await fetch('/partymanager/web-app-api', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -296,7 +296,7 @@
         async function unsetReady(groupId) {
             try {
                 console.log('Unsetting ready for group:', groupId);
-                const response = await fetch('/web-app-api', {
+                const response = await fetch('/partymanager/web-app-api', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -325,7 +325,7 @@
 
         async function leaveGroup(groupId) {
             try {
-                const response = await fetch('/web-app-api', {
+                const response = await fetch('/partymanager/web-app-api', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -350,7 +350,7 @@
 
         async function deleteGroup(groupId) {
             try {
-                const response = await fetch('/web-app-api', {
+                const response = await fetch('/partymanager/web-app-api', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
