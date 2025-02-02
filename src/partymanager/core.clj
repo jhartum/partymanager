@@ -47,13 +47,13 @@
      :headers {"Content-Type" "text/html; charset=utf-8"}
      :body (io/input-stream (io/resource "public/index.html"))})
 
-  (GET (str base-path "/favicon.ico") []
+  (GET (str base-path "favicon.ico") []
     {:status 204})
 
-  (POST (str base-path "/webhook") req
+  (POST (str base-path "webhook") req
     (webhook-handler req))
 
-  (POST (str base-path "/web-app-api") req
+  (POST (str base-path "web-app-api") req
     (api-handler/handle-api-request req))
 
   ;; Serve static files from resources/public
