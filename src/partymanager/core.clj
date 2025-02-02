@@ -38,11 +38,11 @@
   {:status 200 :body "OK"})
 
 ;; Base path configuration
-(def base-path "/partymanager")
+(def base-path "/")
 
 ;; Routing
 (defroutes app-routes
-  (GET (str base-path "/") []
+  (GET (str base-path) []
     {:status 200
      :headers {"Content-Type" "text/html; charset=utf-8"}
      :body (io/input-stream (io/resource "public/index.html"))})
