@@ -1,0 +1,24 @@
+# Git
+.git
+.gitignore
+
+# Clojure
+target/
+.lein-*
+.nrepl-port
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Logs
+*.log
+
+# Environment files
+.env
+test/resources/.env
+
+# Docker
+Dockerfile
+.dockerignore
