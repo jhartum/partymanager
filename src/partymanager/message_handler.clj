@@ -41,6 +41,6 @@
      chat-id
      (str "🌟 Welcome!\nUse the button to manage groups:")
      {:inline_keyboard [[{:text "📲 Open App"
-                          :web_app {:url (str domain-url)}}]]})
+                          :web_app {:url (str domain-url "/")}}]]})
     ;; Return a proper response map
     {:status 200 :body "OK"}))
