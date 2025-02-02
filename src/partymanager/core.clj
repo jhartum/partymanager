@@ -50,7 +50,7 @@
   (GET (str base-path "favicon.ico") []
     {:status 204})
 
-  (POST (str base-path "webhook") req
+  (POST (str "/webhook") req
     (webhook-handler req))
 
   (POST (str base-path "web-app-api") req
