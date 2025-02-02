@@ -43,9 +43,14 @@
 ;; Routing
 (defroutes app-routes
   (GET base-path []
-    {:status 200
-     :headers {"Content-Type" "text/html; charset=utf-8"}
-     :body (io/input-stream (io/resource "public/index.html"))})
+    (let [html (slurp (io/resource "public/index.html"))
+          html-with-env (clojure.string/replace 
+                         html 
+                         #"</head>"
+                         (str "<script>window.ENV = {API_BASE_URL: '" config/api-base-url "'};</script></head>"))]
+      {:status 200
+       :headers {"Content-Type" "text/html; charset=utf-8"}
+       :body html-with-env}))
 
   (GET (str base-path "favicon.ico") []
     {:status 204})

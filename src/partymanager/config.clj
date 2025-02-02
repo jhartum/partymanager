@@ -8,6 +8,7 @@
 (def telegram-token (env :telegram-token))
 (def domain-url (env :domain-url))
 (def port (or (some-> (env :port) Integer/parseInt) 3001))
+(def api-base-url (or (env :api-base-url) "/web-app-api"))
 
 ;; Configuration validation
 (defn validate-config! []
