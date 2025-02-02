@@ -56,10 +56,7 @@
   (POST (str base-path "web-app-api") req
     (api-handler/handle-api-request req))
 
-  ;; Serve static files from resources/public
-  ;; (route/resources (str base-path "/") {:root "public"})
-
-  ;; Handle unmatched routes
+;; Handle unmatched routes
   (route/not-found "Not Found"))
 
 ;; Middleware
