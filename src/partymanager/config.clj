@@ -34,7 +34,7 @@
     (let [response (client/post (str "https://api.telegram.org/bot" telegram-token "/setChatMenuButton")
                                 {:form-params {:menu_button {:type "web_app"
                                                              :text "Open App"
-                                                             :web_app {:url (str domain-url)}}}
+                                                             :web_app {:url (str domain-url "index.html")}}}
                                  :content-type :json})]
       (log/info "Menu button set:" (:body response)))
     (catch Exception e
