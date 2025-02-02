@@ -42,7 +42,7 @@
 
 ;; Routing
 (defroutes app-routes
-  (GET (str base-path) []
+  (GET (str "") []
     {:status 200
      :headers {"Content-Type" "text/html; charset=utf-8"}
      :body (io/input-stream (io/resource "public/index.html"))})
