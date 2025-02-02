@@ -14,6 +14,11 @@
 
 ;; Configuration validation
 (defn validate-config! []
+  (log/info "Validating configuration...")
+  (log/info "Api url:" api-base-url)
+  (log/info "Webhook url:" webhook-base-url)
+  (log/info "Menu button url:" menu-button-url)
+
   (when (or (nil? telegram-token) (nil? domain-url))
     (log/error "Required environment variables are not set!")
     (System/exit 1))
