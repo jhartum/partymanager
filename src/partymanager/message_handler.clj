@@ -1,14 +1,14 @@
 (ns partymanager.message-handler
   (:require
+   [cheshire.core :as json]
    [clj-http.client :as client]
    [clojure.tools.logging :as log]
-   [cheshire.core :as json]
-   [partymanager.config :refer [telegram-token domain-url]]))
+   [partymanager.config :as config]))
 
 (defn send-telegram-message
   "Sends a message via Telegram Bot API"
   [chat-id text & [reply-markup]]
-  (let [url (str "https://api.telegram.org/bot" telegram-token "/sendMessage")
+  (let [url (str "https://api.telegram.org/bot" config/telegram-token "/sendMessage")
         params (cond-> {:chat_id chat-id
                         :text text
                         :parse_mode "Markdown"}
@@ -41,6 +41,6 @@
      chat-id
      (str "🌟 Welcome!\nUse the button to manage groups:")
      {:inline_keyboard [[{:text "📲 Open App"
-                          :web_app {:url (str domain-url "/")}}]]})
+                          :web_app {:url (str config/domain-url config/menu-button-url)}}]]})
     ;; Return a proper response map
     {:status 200 :body "OK"}))
