@@ -3,6 +3,7 @@
    [clojure.java.io :as io]
    [clojure.tools.logging :as log]
    [compojure.core :refer [defroutes GET POST]]
+   [compojure.route :as route]
    [partymanager.api-handler :as api-handler]
    [partymanager.config :as config]
    [partymanager.message-handler :as message-handler]
@@ -36,21 +37,32 @@
 
   {:status 200 :body "OK"})
 
+;; Base path configuration
+(def base-path "/")
+
 ;; Routing
 (defroutes app-routes
-  (GET "/" []
-    {:status 200
-     :headers {"Content-Type" "text/html; charset=utf-8"}
-     :body (io/input-stream (io/resource "public/index.html"))})
+  (GET base-path []
+    (let [html (slurp (io/resource "public/index.html"))
+          html-with-env (clojure.string/replace 
+                         html 
+                         #"</head>"
+                         (str "<script>window.ENV = {API_BASE_URL: '" config/api-base-url "'};</script></head>"))]
+      {:status 200
+       :headers {"Content-Type" "text/html; charset=utf-8"}
+       :body html-with-env}))
 
-  (GET "/favicon.ico" []
+  (GET (str base-path "favicon.ico") []
     {:status 204})
 
-  (POST "/webhook" req
+  (POST (str base-path "webhook") req
     (webhook-handler req))
 
-  (POST "/web-app-api" req
-    (api-handler/handle-api-request req)))
+  (POST (str base-path "web-app-api") req
+    (api-handler/handle-api-request req))
+
+;; Handle unmatched routes
+  (route/not-found "Not Found"))
 
 ;; Middleware
 (def app
@@ -59,7 +71,8 @@
       (middleware/wrap-json-response)
       (wrap-defaults (-> site-defaults
                          (assoc-in [:security :anti-forgery] false)
-                         (assoc-in [:responses :content-types] true)))))
+                         (assoc-in [:responses :content-types] true)
+                         (assoc-in [:static :resources] false)))))
 
 ;; Entry point
 (defn -main []
