@@ -3,9 +3,10 @@
    [cheshire.core :as json]
    [clojure.java.io :as io]
    [clojure.string]
-   [clojure.tools.logging :as log])
-  (:import
-   (java.util UUID)))
+   [clojure.tools.logging :as log]
+   [malli.core :as m]
+   [partymanager.schema :as schema])
+  (:import (java.util UUID)))
 
 (def state-file "resources/state.json")
 
@@ -52,14 +53,14 @@
       (update :chat-id ensure-number)
       (update :registration-date ensure-number)))
 
-(defn- transform-group-member [member]
+(defn- transform-party-member [member]
   (-> member
       (update :id ensure-number)
       (update :registration-date ensure-number)
       (update :ready-at #(when % (ensure-number %)))))
 
-(defn- transform-group [group]
-  (-> group
+(defn- transform-party [party]
+  (-> party
       (update :id #(if (string? %) (UUID/fromString %) %))
       (update :creator-id ensure-number)
       (update :threshold ensure-number)
@@ -67,7 +68,7 @@
       (update :created-at ensure-number)
       (update :last-ready-time ensure-number)
       (update :last-activity #(when % (ensure-number %)))
-      (update :members #(mapv transform-group-member %))))
+      (update :members #(mapv transform-party-member %))))
 
 (defn- transform-users [users]
   (log/info "Transforming users map:" users)
@@ -91,7 +92,7 @@
 (defn- transform-state [state]
   (if (map? state)
     (let [result (-> state
-                     (update :groups #(mapv transform-group %))
+                     (update :parties #(mapv transform-party %))
                      (update :users transform-users))]
       (log/info "Transformed state:" result)
       result)
@@ -102,9 +103,8 @@
     (log/info "Loading state from" state-file)
     (when (.exists (io/file state-file))
       (with-open [r (io/reader state-file)]
-        (let [state (json/parse-stream r true)
-              _ (log/info "Loaded raw state:" state)
-              transformed-state (transform-state state)]
+        (let [raw-state (json/parse-stream r true)
+              transformed-state (schema/transform-state raw-state)]
           (log/info "State loaded and transformed successfully")
           transformed-state)))
     (catch Exception e
@@ -112,4 +112,11 @@
       nil)))
 
 (defn init-storage! [initial-state]
-  (or (load-state) initial-state))
+  (if-let [stored (load-state)]
+    stored
+    (let [explanation (m/explain schema/AppState-schema initial-state)]
+      (if explanation
+        (do
+          (log/warn "Invalid initial state, using default empty state")
+          (throw (ex-info "Invalid state" {:errors explanation})))
+        initial-state))))

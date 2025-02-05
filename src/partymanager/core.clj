@@ -1,17 +1,20 @@
 (ns partymanager.core
   (:require
    [clojure.java.io :as io]
+   [clojure.string :as string]
    [clojure.tools.logging :as log]
    [compojure.core :refer [defroutes GET POST]]
    [compojure.route :as route]
-   [partymanager.api-handler :as api-handler]
+   [org.httpkit.server :as http-kit]
    [partymanager.config :as config]
    [partymanager.message-handler :as message-handler]
    [partymanager.state :as state]
-   [ring.adapter.jetty :as jetty]
+   [partymanager.websocket :as websocket]
    [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
-   [ring.middleware.json :as middleware])
-  (:gen-class))
+   [ring.middleware.json :as middleware]))
+
+;; Add near the top of the file, after the requires
+(System/setProperty "clojure.tools.logging.factory" "clojure.tools.logging.impl/slf4j-factory")
 
 ;; Code update scheduler
 (defn schedule-code-updates! []
@@ -37,31 +40,26 @@
 
   {:status 200 :body "OK"})
 
-;; Base path configuration
-(def base-path "/")
-
 ;; Routing
 (defroutes app-routes
-  (GET base-path []
+  (GET "/" []
     (let [html (slurp (io/resource "public/index.html"))
-          html-with-env (clojure.string/replace 
-                         html 
+          html-with-env (string/replace
+                         html
                          #"</head>"
                          (str "<script>window.ENV = {API_BASE_URL: '" config/api-base-url "'};</script></head>"))]
       {:status 200
        :headers {"Content-Type" "text/html; charset=utf-8"}
        :body html-with-env}))
 
-  (GET (str base-path "favicon.ico") []
+  (GET "favicon.ico" []
     {:status 204})
 
-  (POST (str base-path "webhook") req
+  (POST "/webhook" req
     (webhook-handler req))
 
-  (POST (str base-path "web-app-api") req
-    (api-handler/handle-api-request req))
+  (GET "/ws" [] websocket/request-handler)
 
-;; Handle unmatched routes
   (route/not-found "Not Found"))
 
 ;; Middleware
@@ -74,10 +72,16 @@
                          (assoc-in [:responses :content-types] true)
                          (assoc-in [:static :resources] false)))))
 
+;; Add before the -main function
+(defn configure-logging! []
+  (.setLevel (java.util.logging.Logger/getLogger "")
+             java.util.logging.Level/ALL))
+
 ;; Entry point
 (defn -main []
+  (configure-logging!)
   (config/configure-bot!)
   (state/init-storage! {:groups [] :users {}})
   (schedule-code-updates!)
-  (jetty/run-jetty app {:port config/port :join? false})
+  (http-kit/run-server app {:port config/port})
   (log/info "Server started on port" config/port))

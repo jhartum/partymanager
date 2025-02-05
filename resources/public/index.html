@@ -6,166 +6,278 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --background: #f5f6fa;
-        }
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
-            padding: 20px;
-            background: var(--background);
+            padding: 16px;
+            color: var(--tg-theme-text-color, #000);
+            background: var(--tg-theme-bg-color, #fff);
         }
+
         .container {
-            max-width: 800px;
+            max-width: 600px;
             margin: 0 auto;
         }
+
         .section {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
         }
-        input, button {
-            padding: 12px 16px;
-            margin: 8px 0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+
+        h1, h2 {
+            margin-bottom: 16px;
+        }
+
+        input {
             width: 100%;
+            padding: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             box-sizing: border-box;
-            font-size: 16px;
         }
+
         button {
-            background: var(--secondary);
-            color: white;
+            width: 100%;
+            padding: 10px;
+            background: var(--tg-theme-button-color, #3390ec);
+            color: var(--tg-theme-button-text-color, #fff);
             border: none;
+            border-radius: 4px;
             cursor: pointer;
-            transition: opacity 0.2s;
+            margin-bottom: 8px;
         }
-        button:active {
-            opacity: 0.8;
+
+        button:hover {
+            opacity: 0.9;
         }
-        .group-card {
+
+        .party-card {
+            background: var(--tg-theme-secondary-bg-color, #f5f5f5);
             padding: 16px;
-            margin: 12px 0;
-            border-left: 4px solid var(--secondary);
-            background: #fff;
             border-radius: 8px;
+            margin-bottom: 16px;
         }
+
+        .party-card h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
         .members-list {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #eee;
+            margin-top: 8px;
         }
+
         .member {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
+            padding: 4px 0;
         }
-        .member-name {
-            font-size: 14px;
-            color: var(--primary);
-        }
+
         .ready-status {
-            margin-left: 8px;
-            transition: opacity 0.2s;
+            color: #666;
         }
+
         .ready-status.ready {
             color: #2ecc71;
         }
-        code {
-            background: #f0f0f0;
-            padding: 2px 6px;
+
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--tg-theme-bg-color, #fff);
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 320px;
+            z-index: 1001;
+        }
+
+        .popup h2 {
+            margin-top: 0;
+        }
+
+        .popup-close {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+            width: auto;
+        }
+
+        .copy-code {
+            cursor: pointer;
+            background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+            padding: 4px 8px;
             border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: background 0.2s;
+        }
+        .copy-code:hover {
+            background: var(--tg-theme-hint-color, #999);
+        }
+        .copy-icon {
+            opacity: 0.7;
+        }
+        .copy-code:hover .copy-icon {
+            opacity: 1;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="section">
-            <h1 style="color: var(--primary)">👥 Управление группами</h1>
+            <h1 style="color: var(--primary)">👥 Управление пати</h1>
             
             <div class="section">
-                <h2>➕ Новая группа</h2>
-                <input type="text" id="group-name" placeholder="Название группы" required>
-                <input type="number" id="threshold" placeholder="Требуемое количество участников" min="1" required>
-                <input type="number" id="max-members" placeholder="Максимальное количество участников" min="2" max="20" value="10" required>
-                <small style="display: block; margin: 4px 0 12px; color: #666;">Мин: 2, Макс: 20</small>
-                <button onclick="createGroup()">Создать группу</button>
+                <button onclick="showCreatePartyPopup()">➕ Создать новую пати</button>
+                <button onclick="showJoinPartyPopup()">🔗 Присоединиться к пати</button>
             </div>
 
             <div class="section">
-                <h2>🔗 Присоединиться к группе</h2>
-                <input type="text" id="invite-code" placeholder="Введите код приглашения" required>
-                <button onclick="joinGroup()">Присоединиться</button>
-            </div>
-
-            <div class="section">
-                <h2>📋 Список групп</h2>
-                <div id="groups-list"></div>
+                <h2>📋 Мои пати</h2>
+                <div id="parties-list"></div>
             </div>
         </div>
     </div>
 
+    <!-- Попап создания пати -->
+    <div id="create-party-popup" class="popup-overlay">
+        <div class="popup">
+            <button class="popup-close" onclick="hidePopup('create-party-popup')">×</button>
+            <h2>➕ Новая пати</h2>
+            <input type="text" id="party-name" placeholder="Название пати" required>
+            <input type="number" id="threshold" placeholder="Требуемое количество участников" min="1" required>
+            <input type="number" id="max-members" placeholder="Максимальное количество участников" min="2" max="20" value="10" required>
+            <small style="display: block; margin: 4px 0 12px; color: #666;">Мин: 2, Макс: 20</small>
+            <button onclick="createParty()">Создать пати</button>
+        </div>
+    </div>
+
+    <!-- Попап присоединения к пати -->
+    <div id="join-party-popup" class="popup-overlay">
+        <div class="popup">
+            <button class="popup-close" onclick="hidePopup('join-party-popup')">×</button>
+            <h2>🔗 Присоединиться к пати</h2>
+            <input type="text" id="invite-code" placeholder="Введите код приглашения" required>
+            <button onclick="joinParty()">Присоединиться</button>
+        </div>
+    </div>
+
     <script>
-        function getApiBaseUrl() {
-            return window.ENV?.API_BASE_URL || '/web-app-api';
+        let ws;
+        
+        function getWebSocketUrl() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            return `${protocol}//${window.location.host}/ws`;
         }
 
-        function debugInfo(group) {
+        function connectWebSocket() {
             const userId = initDataUnsafe.user?.id;
-            const member = group.members?.find(m => m.id === userId);
-            console.log('Debug Info:', {
-                userId: userId,
-                groupId: group.id,
-                member: member,
-                readyStatus: member?.ready
-            });
+            
+            ws = new WebSocket(getWebSocketUrl() + '?userId=' + userId);
+            
+            ws.onopen = function() {
+                ws.send(JSON.stringify({
+                    type: 'get-initial-state',
+                    userId: userId
+                }));
+            };
+            
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                if (data.type === 'parties-update') {
+                    renderParties(data.parties);
+                } else if (data.type === 'error') {
+                    Telegram.WebApp.showAlert(data.error);
+                }
+            };
+            
+            ws.onerror = function(error) {
+                Telegram.WebApp.showAlert('Connection error');
+            };
+            
+            ws.onclose = function(event) {
+                setTimeout(connectWebSocket, 1000);
+            };
         }
 
-        function renderGroups(groups) {
-            const container = document.getElementById('groups-list');
-            container.innerHTML = groups.map(group => {
-                debugInfo(group);
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+        }
+
+        function renderParties(parties) {
+            const container = document.getElementById('parties-list');
+            if (!container) return;
+            const userId = initDataUnsafe.user?.id;
+            
+            const userParties = parties.filter(party => 
+                party.members?.some(member => member.id === userId)
+            );
+            
+            container.innerHTML = userParties.map(party => {
                 return `
-                <div class="group-card">
+                <div class="party-card">
                     <h3>
-                        ${group.name}
+                        ${party.name}
                     </h3>
-                    <p>Код: <strong>${group['invite-code']}</strong></p>
-                    
-                    <p>Порог готовности: ${group.threshold}</p>
-                    <p class="members-count" style="color: ${group['members']?.length >= group['max-members'] ? '#e74c3c' : group['members']?.length >= group['max-members'] * 0.8 ? '#f39c12' : '#2ecc71'}">
-                        Участники: ${group['members']?.length || 0}/${group['max-members']}
+                    <p>Код: 
+                        <strong class="copy-code" 
+                            onclick="copyToClipboard('${party['invite-code']}')" 
+                            title="Нажмите, чтобы скопировать">
+                            ${party['invite-code']}
+                            <span class="copy-icon">✂️</span>
+                        </strong>
                     </p>
-                    ${group['members']?.find(m => m.id === initDataUnsafe.user?.id)?.ready ? `
-                        <button onclick="unsetReady('${group.id}')" style="background: #e67e22;">❌ Отменить готовность</button>
+                    
+                    <p>Порог готовности: ${party.threshold}</p>
+                    <p class="members-count" style="color: ${party['members']?.length >= party['max-members'] ? '#e74c3c' : party['members']?.length >= party['max-members'] * 0.8 ? '#f39c12' : '#2ecc71'}">
+                        Участники: ${party['members']?.length || 0}/${party['max-members']}
+                    </p>
+                    ${party['members']?.find(m => m.id === initDataUnsafe.user?.id)?.ready ? `
+                        <button onclick="unsetReady('${party.id}')" style="background: #e67e22;">❌ Отменить готовность</button>
                     ` : `
-                        <button onclick="setReady('${group.id}')">✅ Готов</button>
+                        <button onclick="setReady('${party.id}')">✅ Готов</button>
                     `}
                     
-                    ${group['creator-id'] === initDataUnsafe.user?.id ? `
+                    ${party['creator-id'] === initDataUnsafe.user?.id ? `
                         <button 
                             style="background: #e74c3c; margin-top: 8px;" 
-                            onclick="deleteGroup('${group.id}')">
-                            🗑️ Удалить группу
+                            onclick="deleteParty('${party.id}')">
+                            🗑️ Удалить пати
                         </button>
                     ` : `
                         <button 
                             style="background: #666; margin-top: 8px;" 
-                            onclick="leaveGroup('${group.id}')">
-                            🚪 Покинуть группу
+                            onclick="leaveParty('${party.id}')">
+                            🚪 Покинуть пати
                         </button>
                     `}
                     
                     <p>Список участников</p>
                     <div class="members-list">
-                        ${group['members']?.map(member => `
+                        ${party['members']?.map(member => `
                             <div class="member">
-                                <span class="member-name">${member['first-name'] || "Anonim"}</span>
+                                <span class="member-name">${member['first-name'] || "Аноним"}</span>
                                 <span class="ready-status ${member.ready ? 'ready' : ''}">
                                     ${member.ready ? '✅' : '◯'}
                                 </span>
@@ -176,66 +288,43 @@
             }).join('');
         }
 
-        async function updateGroups() {
-            try {
-                const response = await fetch(getApiBaseUrl(), {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'get-groups',
-                        userId: initDataUnsafe.user?.id || 'Unknown',
-                    })
-                });
-
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const result = await response.json();
-                if (!Array.isArray(result.groups)) throw new Error('Invalid groups data format');
-                renderGroups(result.groups);
-            } catch (error) {
-                console.error('Failed to update groups:', error);
-                Telegram.WebApp.showAlert(`Ошибка загрузки групп: ${error.message}`);
+        function checkWebSocketConnection() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                Telegram.WebApp.showAlert('Соединение потеряно. Переподключение...');
+                connectWebSocket();
+                return false;
             }
+            return true;
         }
-        
-        async function createGroup() {
-            const name = document.getElementById('group-name').value.trim();
+
+        async function createParty() {
+            if (!checkWebSocketConnection()) return;
+
+            const name = document.getElementById('party-name').value.trim();
             const threshold = document.getElementById('threshold').value.trim();
             if (!name || !threshold) {
-                alert('Заполните все поля');
+                Telegram.WebApp.showAlert('Заполните все поля');
                 return;
             }
 
             try {
-                const response = await fetch(getApiBaseUrl(), {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'create-group', 
-                        userId: initDataUnsafe.user?.id || 'Unknown',
-                        threshold: threshold,
-                        name: name,
-                        maxMembers: document.getElementById('max-members').value
-                    })
-                });
-
-                const result = await response.json();
-                if (response.ok) {
-                    Telegram.WebApp.showAlert(`Group created`);
-                    updateGroups()
-                } else {
-                    Telegram.WebApp.showAlert(`Error: ${result.error}`);
-                }
+                ws.send(JSON.stringify({
+                    action: 'create-party',
+                    userId: initDataUnsafe.user?.id || 'Unknown',
+                    threshold: threshold,
+                    name: name,
+                    maxMembers: document.getElementById('max-members').value
+                }));
+                hidePopup('create-party-popup');
+                Telegram.WebApp.showAlert('Пати создана');
             } catch (error) {
                 Telegram.WebApp.showAlert('Network error');
-                console.error('Error:', error);
             }
         }
 
-        async function joinGroup() {
+        async function joinParty() {
+            if (!checkWebSocketConnection()) return;
+
             const inviteCode = document.getElementById('invite-code').value.trim();
             if (!inviteCode) {
                 Telegram.WebApp.showAlert('Введите код приглашения');
@@ -243,138 +332,88 @@
             }
 
             try {
-                const response = await fetch(getApiBaseUrl(), {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'join-group',
-                        userId: initDataUnsafe.user?.id || 'Unknown',
-                        inviteCode: inviteCode
-                    })
-                });
-
-                const result = await response.json();
-                if (response.ok) {
-                    await updateGroups();
-                    Telegram.WebApp.showAlert(`Успешно присоединились к группе!`);
-                } else {
-                    throw new Error(result.error || 'Ошибка при присоединении');
-                }
+                ws.send(JSON.stringify({
+                    action: 'join-party',
+                    userId: initDataUnsafe.user?.id || 'Unknown',
+                    inviteCode: inviteCode
+                }));
+                hidePopup('join-party-popup');
+                Telegram.WebApp.showAlert('Успешно присоединились к пати!');
             } catch (error) {
-                Telegram.WebApp.showAlert(error);
+                Telegram.WebApp.showAlert(error.message || 'Ошибка при присоединении');
             }
         }
 
-        async function setReady(groupId) {
-            try {
-                console.log('Setting ready for group:', groupId);
-                const response = await fetch(getApiBaseUrl(), {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'set-ready',
-                        userId: initDataUnsafe.user?.id || 'Unknown',
-                        groupId: groupId
-                    })
-                });
+        async function setReady(partyId) {
+            if (!checkWebSocketConnection()) return;
 
-                if (response.ok) {
-                    console.log('Set ready successful, updating groups');
-                    await updateGroups();
-                    Telegram.WebApp.showAlert(`Статус готовности обновлён!`);
-                } else {
-                    const result = await response.json();
-                    console.error('Set ready failed:', result.error);
-                    throw new Error(result.error || 'Ошибка обновления статуса');
-                }
+            try {
+                ws.send(JSON.stringify({
+                    action: 'set-ready',
+                    userId: initDataUnsafe.user?.id || 'Unknown',
+                    partyId: partyId
+                }));
+                Telegram.WebApp.showAlert('Статус готовности обновлён!');
             } catch (error) {
-                console.error('Set ready error:', error);
-                Telegram.WebApp.showAlert(error);
+                Telegram.WebApp.showAlert(error.message || 'Ошибка обновления статуса');
             }
         }
 
-        async function unsetReady(groupId) {
-            try {
-                console.log('Unsetting ready for group:', groupId);
-                const response = await fetch(getApiBaseUrl(), {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'unset-ready',
-                        userId: initDataUnsafe.user?.id || 'Unknown',
-                        groupId: groupId
-                    })
-                });
+        async function unsetReady(partyId) {
+            if (!checkWebSocketConnection()) return;
 
-                if (response.ok) {
-                    console.log('Unset ready successful, updating groups');
-                    await updateGroups();
-                    Telegram.WebApp.showAlert(`Готовность отменена!`);
-                } else {
-                    const result = await response.json();
-                    console.error('Unset ready failed:', result.error);
-                    throw new Error(result.error || 'Ошибка отмены готовности');
-                }
+            try {
+                ws.send(JSON.stringify({
+                    action: 'unset-ready',
+                    userId: initDataUnsafe.user?.id || 'Unknown',
+                    partyId: partyId
+                }));
+                Telegram.WebApp.showAlert('Готовность отменена!');
             } catch (error) {
-                console.error('Unset ready error:', error);
-                Telegram.WebApp.showAlert(error);
+                Telegram.WebApp.showAlert(error.message || 'Ошибка отмены готовности');
             }
         }
 
-        async function leaveGroup(groupId) {
-            try {
-                const response = await fetch(getApiBaseUrl(), {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'leave-group',
-                        userId: initDataUnsafe.user?.id || 'Unknown',
-                        groupId: groupId
-                    })
-                });
+        async function leaveParty(partyId) {
+            if (!checkWebSocketConnection()) return;
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.body || 'Ошибка при выходе из группы');
-                }
-                await updateGroups();
-                Telegram.WebApp.showAlert(`Вы успешно покинули группу!`);
+            try {
+                ws.send(JSON.stringify({
+                    action: 'leave-party',
+                    userId: initDataUnsafe.user?.id || 'Unknown',
+                    partyId: partyId
+                }));
+                Telegram.WebApp.showAlert('Вы успешно покинули пати!');
             } catch (error) {
-                Telegram.WebApp.showAlert(error);
+                Telegram.WebApp.showAlert(error.message || 'Ошибка при выходе из пати');
             }
         }
 
-        async function deleteGroup(groupId) {
-            try {
-                const response = await fetch(getApiBaseUrl(), {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'delete-group',
-                        userId: initDataUnsafe.user?.id || 'Unknown',
-                        groupId: groupId
-                    })
-                });
+        async function deleteParty(partyId) {
+            if (!checkWebSocketConnection()) return;
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.body || 'Ошибка при удалении группы');
-                }
-                await updateGroups();
-                Telegram.WebApp.showAlert(`Вы успешно удалили группу!`);
+            try {
+                ws.send(JSON.stringify({
+                    action: 'delete-party',
+                    userId: initDataUnsafe.user?.id || 'Unknown',
+                    partyId: partyId
+                }));
+                Telegram.WebApp.showAlert('Вы успешно удалили пати!');
             } catch (error) {
-                Telegram.WebApp.showAlert(error);
+                Telegram.WebApp.showAlert(error.message || 'Ошибка при удалении пати');
             }
+        }
+
+        function showCreatePartyPopup() {
+            document.getElementById('create-party-popup').style.display = 'block';
+        }
+
+        function showJoinPartyPopup() {
+            document.getElementById('join-party-popup').style.display = 'block';
+        }
+
+        function hidePopup(popupId) {
+            document.getElementById(popupId).style.display = 'none';
         }
 
         Telegram.WebApp.ready();
@@ -383,8 +422,7 @@
         const initData = Telegram.WebApp.initData;
         const initDataUnsafe = Telegram.WebApp.initDataUnsafe;
 
-        updateGroups();
-        setInterval(updateGroups, 5000);
+        connectWebSocket();
 
         Telegram.WebApp.onEvent('themeChanged', () => {
             document.body.style.backgroundColor = Telegram.WebApp.colorScheme;
