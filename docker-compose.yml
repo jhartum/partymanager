@@ -6,8 +6,13 @@ services:
       - "${PORT:-3001}:${PORT:-3001}"
     volumes:
       - partymanager_data:/app/resources
-    env_file:
-      - .env
+    environment:
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+      - DOMAIN_URL=${DOMAIN_URL}
+      - PORT=${PORT:-3001}
+      - API_URL=${API_URL:-/web-app-api}
+      - WEBHOOK_URL=${WEBHOOK_URL:-/webhook}
+      - MENU_BUTTON_URL=${MENU_BUTTON_URL:-/}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${PORT:-3001}/"]
