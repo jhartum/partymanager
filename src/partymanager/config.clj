@@ -15,6 +15,9 @@
 ;; Configuration validation
 (defn validate-config! []
   (log/info "Validating configuration...")
+  (log/info "Telegram token:" telegram-token)
+  (log/info "Domain url:" domain-url)
+  (log/info "Port:" port)
   (log/info "Api url:" api-base-url)
   (log/info "Webhook url:" webhook-base-url)
   (log/info "Menu button url:" menu-button-url)
@@ -33,7 +36,9 @@
           response (client/post (str "https://api.telegram.org/bot" telegram-token "/setWebhook")
                                 {:form-params {:url url}
                                  :content-type :json})]
-      (log/info "Webhook set:" (:body response) url))
+      (log/info "Webhook set:" (:body response) url)
+      (log/info "Webhook response:" response))
+    
     (catch Exception e
       (log/error "Webhook setup error:" (.getMessage e)))))
 
@@ -46,7 +51,8 @@
                                                              :text "Open App"
                                                              :web_app {:url url}}}
                                  :content-type :json})]
-      (log/info "Menu button set:" (:body response) url))
+      (log/info "Menu button set:" (:body response) url)
+      (log/info "Menu button response:" response))
     (catch Exception e
       (log/error "Menu button setup error:" (.getMessage e)))))
 
