@@ -1,6 +1,7 @@
 services:
   app:
     build: .
+    container_name: partymanager-app
     ports:
       - "${PORT:-3001}:${PORT:-3001}"
     volumes:
@@ -14,6 +15,18 @@ services:
       timeout: 3s
       retries: 3
       start_period: 5s
+    networks:
+      - partymanager-network
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.enable=true"
+      - "com.docker.compose.project=partymanager"
+      - "com.docker.compose.service=app"
+
+networks:
+  partymanager-network:
+    driver: bridge
 
 volumes:
   partymanager_data:
+    name: partymanager_data
