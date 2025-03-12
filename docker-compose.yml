@@ -25,6 +25,12 @@ services:
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
       - "traefik.enable=true"
+      - "traefik.http.routers.partymanager.rule=Host(`jhartum.work.gd`) && PathPrefix(`/partymanager`)"
+      - "traefik.http.routers.partymanager.entrypoints=websecure"
+      - "traefik.http.routers.partymanager.tls.certresolver=myresolver"
+      - "traefik.http.middlewares.partymanager-stripprefix.stripprefix.prefixes=/partymanager"
+      - "traefik.http.routers.partymanager.middlewares=partymanager-stripprefix@docker"
+      - "traefik.http.services.partymanager.loadbalancer.server.port=${PORT:-3001}"
       - "com.docker.compose.project=partymanager"
       - "com.docker.compose.service=app"
 
